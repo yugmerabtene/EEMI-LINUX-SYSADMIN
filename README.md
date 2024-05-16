@@ -2,6 +2,8 @@
 
 **Titre du TP : Création de groupes et d'utilisateurs**
 
+https://www.w3schools.io/terminal/bash-tutorials/ 
+
 **Objectif :**  
 L'objectif de ce TP est de créer un script Shell permettant de créer un groupe et des utilisateurs sur un système Linux.
 
