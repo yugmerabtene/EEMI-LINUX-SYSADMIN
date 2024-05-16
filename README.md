@@ -1,5 +1,92 @@
 # EEMI-LINUX-SYSADMIN
 
+### Grep :
+
+**Qu'est-ce que Grep ?**
+- Grep est une commande utilisée dans les systèmes d'exploitation de type UNIX et Linux pour rechercher des chaînes de texte dans des fichiers ou des flux de données.
+
+**Syntaxe de base :**
+```
+grep [options] pattern [file...]
+```
+
+**Options courantes de Grep :**
+- **-i** : Ignore la casse lors de la recherche.
+- **-v** : Inverse la recherche, affichant les lignes qui ne correspondent pas au motif spécifié.
+- **-r** : Recherche récursive dans les répertoires.
+- **-n** : Affiche les numéros de ligne correspondant au motif.
+- **-c** : Affiche le nombre total de lignes correspondant au motif.
+- **-l** : Affiche uniquement les noms des fichiers contenant le motif.
+- **-e pattern** : Permet de spécifier plusieurs motifs de recherche.
+
+**Exemples d'utilisation :**
+1. Rechercher une chaîne de texte dans un fichier :
+   ```
+   grep "pattern" file.txt
+   ```
+
+2. Rechercher une chaîne de texte de manière insensible à la casse :
+   ```
+   grep -i "pattern" file.txt
+   ```
+
+3. Rechercher une chaîne de texte dans tous les fichiers d'un répertoire de manière récursive :
+   ```
+   grep -r "pattern" directory/
+   ```
+
+4. Afficher le nombre total de lignes correspondant au motif dans un fichier :
+   ```
+   grep -c "pattern" file.txt
+   ```
+
+### Sed :
+
+**Qu'est-ce que Sed ?**
+- Sed (Stream Editor) est un éditeur de flux de texte en ligne de commande. Il est utilisé pour filtrer et transformer du texte à l'intérieur d'un flux ou d'un fichier.
+
+**Syntaxe de base :**
+```
+sed [options] 'command' file
+```
+
+**Options courantes de Sed :**
+- **-e** : Permet de spécifier plusieurs commandes à exécuter.
+- **-i** : Modifie le fichier d'entrée directement.
+- **-n** : Supprime la sortie automatique de chaque ligne.
+- **-r** : Utilise des expressions rationnelles étendues.
+- **-f** : Lit les commandes depuis un fichier.
+
+**Commandes Sed courantes :**
+- **s/pattern/replacement/g** : Remplace toutes les occurrences de 'pattern' par 'replacement'.
+- **/pattern/d** : Supprime les lignes contenant 'pattern'.
+- **/pattern/p** : Affiche les lignes contenant 'pattern'.
+- **1,10d** : Supprime les lignes de 1 à 10.
+- **1,10p** : Affiche les lignes de 1 à 10.
+
+**Exemples d'utilisation :**
+1. Remplacer toutes les occurrences d'un mot dans un fichier :
+   ```
+   sed 's/old_word/new_word/g' file.txt
+   ```
+
+2. Supprimer les lignes contenant un motif spécifique :
+   ```
+   sed '/pattern/d' file.txt
+   ```
+
+3. Afficher uniquement les lignes contenant un motif spécifique :
+   ```
+   sed -n '/pattern/p' file.txt
+   ```
+
+4. Exécuter plusieurs commandes avec Sed :
+   ```
+   sed -e 's/old_word/new_word/g' -e '/pattern/d' file.txt
+   ```
+
+
+
 **Titre du TP : Création de groupes et d'utilisateurs**
 
 https://www.w3schools.io/terminal/bash-tutorials/ 
