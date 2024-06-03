@@ -1,5 +1,315 @@
 # EEMI-LINUX-SYSADMIN
 
+
+----
+# Cours Complet : Gestion Avancée des Utilisateurs et Permissions en Unix/Linux
+
+## Introduction
+
+Ce cours aborde les concepts avancés de gestion des utilisateurs et des permissions en Unix/Linux. Nous couvrirons la création et la gestion des utilisateurs et groupes, l'utilisation des ACL (Access Control Lists) pour une gestion fine des permissions, et des cas d'utilisation courants.
+
+## 1. Gestion Avancée des Utilisateurs et Groupes
+
+### Création de Groupes avec des GID Spécifiques
+
+Pour créer un groupe avec un GID (Group ID) spécifique, utilisez l'option `-g` :
+```bash
+sudo addgroup --gid 1001 nom_groupe
+```
+
+### Création d'Utilisateurs avec des UID et GID Spécifiques
+
+Pour créer un utilisateur avec des UID (User ID) et GID spécifiques :
+```bash
+sudo adduser --uid 1001 --gid 1001 nom_utilisateur
+```
+
+### Utilisation de `/etc/sudoers` pour Accorder des Droits Superutilisateurs
+
+Pour donner des droits sudo à un utilisateur, éditez le fichier `/etc/sudoers` avec `visudo` :
+```bash
+sudo visudo
+```
+Ajoutez la ligne suivante pour accorder des droits sudo à un utilisateur spécifique :
+```plaintext
+nom_utilisateur ALL=(ALL) NOPASSWD:ALL
+```
+Ou pour un groupe :
+```plaintext
+%nom_groupe ALL=(ALL) NOPASSWD:ALL
+```
+
+## 2. Gestion Avancée des Permissions avec ACL
+
+### Activer les ACL
+
+Assurez-vous que les ACL sont activées sur le système de fichiers :
+```bash
+sudo mount -o remount,acl /dev/sdX /mnt
+```
+
+### Utilisation de `setfacl` pour Définir des Permissions
+
+- **Ajouter des permissions pour un utilisateur** :
+  ```bash
+  setfacl -m u:alice:rwx fichier.txt
+  ```
+
+- **Ajouter des permissions pour un groupe** :
+  ```bash
+  setfacl -m g:devs:rwx fichier.txt
+  ```
+
+- **Définir des permissions par défaut pour un répertoire** :
+  ```bash
+  setfacl -d -m g:devs:rwx projet_dossier
+  ```
+
+### Utilisation de `getfacl` pour Vérifier les Permissions
+
+- **Vérifier les ACL d'un fichier ou répertoire** :
+  ```bash
+  getfacl fichier.txt
+  getfacl projet_dossier
+  ```
+
+### Supprimer des ACL
+
+- **Supprimer une ACL pour un utilisateur** :
+  ```bash
+  setfacl -x u:alice fichier.txt
+  ```
+
+- **Supprimer une ACL pour un groupe** :
+  ```bash
+  setfacl -x g:devs fichier.txt
+  ```
+
+## 3. Cas d'Utilisation Courants
+
+### Partager des Répertoires entre Groupes
+
+1. **Créer un répertoire partagé** :
+   ```bash
+   mkdir /srv/projets
+   ```
+
+2. **Changer le groupe propriétaire** :
+   ```bash
+   sudo chown :devs /srv/projets
+   ```
+
+3. **Définir les permissions du groupe** :
+   ```bash
+   chmod 770 /srv/projets
+   ```
+
+4. **Définir les permissions par défaut avec ACL** :
+   ```bash
+   setfacl -d -m g:devs:rwx /srv/projets
+   ```
+
+### Restreindre l'Accès à un Répertoire Sensible
+
+1. **Créer un répertoire** :
+   ```bash
+   mkdir /srv/secret
+   ```
+
+2. **Changer le propriétaire et le groupe** :
+   ```bash
+   sudo chown root:root /srv/secret
+   ```
+
+3. **Définir des permissions strictes** :
+   ```bash
+   chmod 700 /srv/secret
+   ```
+
+## 4. Gestion des Scripts pour Automatiser les Tâches
+
+### Exemple de Script pour Créer des Utilisateurs et Configurer des Permissions
+
+Voici un exemple de script Bash pour automatiser la création d'utilisateurs et la configuration des permissions :
+
+```bash
+#!/bin/bash
+
+# Vérifie si l'utilisateur est root
+if [ "$(id -u)" -ne 0 ]; then
+  echo "Ce script doit être exécuté en tant que root." >&2
+  exit 1
+fi
+
+# Crée des utilisateurs
+for user in alice bob charlie; do
+  adduser --disabled-password --gecos "" $user
+  echo "$user:password" | chpasswd
+done
+
+# Crée un groupe
+groupadd devs
+
+# Ajoute des utilisateurs au groupe
+for user in alice bob; do
+  usermod -aG devs $user
+done
+
+# Crée un répertoire partagé
+mkdir /srv/projets
+chown :devs /srv/projets
+chmod 770 /srv/projets
+setfacl -d -m g:devs:rwx /srv/projets
+
+echo "Configuration terminée avec succès."
+```
+
+Enregistrez ce script sous `setup.sh`, rendez-le exécutable et exécutez-le :
+```bash
+chmod +x setup.sh
+sudo ./setup.sh
+```
+
+----
+### Partage de Fichiers entre Utilisateurs de Différents Groupes en Unix/Linux
+
+Pour partager un fichier entre plusieurs utilisateurs appartenant à différents groupes, vous pouvez utiliser plusieurs méthodes. Voici les options les plus courantes et efficaces :
+
+#### 1. Utilisation des Listes de Contrôle d'Accès (ACL)
+
+Les ACL permettent de définir des permissions très précises pour plusieurs utilisateurs et groupes sur un même fichier ou répertoire.
+
+##### Activer les ACL
+
+Assurez-vous que les ACL sont activées sur le système de fichiers :
+```bash
+sudo mount -o remount,acl /dev/sdX /mnt
+```
+
+##### Définir des Permissions avec ACL
+
+1. **Créer le fichier ou répertoire à partager** :
+   ```bash
+   touch /srv/partage/fichier_partage.txt
+   mkdir /srv/partage
+   ```
+
+2. **Changer le propriétaire et le groupe du fichier/répertoire** :
+   ```bash
+   sudo chown root:root /srv/partage/fichier_partage.txt
+   sudo chown root:root /srv/partage
+   ```
+
+3. **Définir les permissions de base** :
+   ```bash
+   chmod 770 /srv/partage/fichier_partage.txt
+   chmod 770 /srv/partage
+   ```
+
+4. **Ajouter des permissions ACL pour des utilisateurs spécifiques** :
+   ```bash
+   setfacl -m u:alice:rwx /srv/partage/fichier_partage.txt
+   setfacl -m u:bob:rwx /srv/partage/fichier_partage.txt
+   setfacl -m u:charlie:rw /srv/partage/fichier_partage.txt
+   ```
+
+5. **Ajouter des permissions ACL pour des groupes spécifiques** :
+   ```bash
+   setfacl -m g:devs:rwx /srv/partage/fichier_partage.txt
+   setfacl -m g:managers:rwx /srv/partage/fichier_partage.txt
+   ```
+
+6. **Définir des permissions par défaut pour le répertoire** (pour les nouveaux fichiers créés dans ce répertoire) :
+   ```bash
+   setfacl -d -m u:alice:rwx /srv/partage
+   setfacl -d -m u:bob:rwx /srv/partage
+   setfacl -d -m u:charlie:rw /srv/partage
+   setfacl -d -m g:devs:rwx /srv/partage
+   setfacl -d -m g:managers:rwx /srv/partage
+   ```
+
+7. **Vérifier les ACL** :
+   ```bash
+   getfacl /srv/partage/fichier_partage.txt
+   getfacl /srv/partage
+   ```
+
+#### 2. Utilisation d'un Groupe Commun
+
+Créer un groupe commun pour les utilisateurs qui doivent partager le fichier peut simplifier la gestion des permissions.
+
+1. **Créer un groupe commun** :
+   ```bash
+   sudo addgroup partage
+   ```
+
+2. **Ajouter des utilisateurs au groupe** :
+   ```bash
+   sudo usermod -aG partage alice
+   sudo usermod -aG partage bob
+   sudo usermod -aG partage charlie
+   ```
+
+3. **Créer le fichier ou répertoire à partager** :
+   ```bash
+   touch /srv/partage/fichier_partage.txt
+   mkdir /srv/partage
+   ```
+
+4. **Changer le groupe propriétaire** :
+   ```bash
+   sudo chown :partage /srv/partage/fichier_partage.txt
+   sudo chown :partage /srv/partage
+   ```
+
+5. **Définir les permissions** :
+   ```bash
+   chmod 770 /srv/partage/fichier_partage.txt
+   chmod 770 /srv/partage
+   ```
+
+#### 3. Utilisation des Répertoires Partagés avec des Groupes Secondaires
+
+Les utilisateurs peuvent appartenir à plusieurs groupes secondaires, ce qui permet de gérer des permissions complexes.
+
+1. **Ajouter des utilisateurs à plusieurs groupes** :
+   ```bash
+   sudo usermod -aG devs alice
+   sudo usermod -aG managers bob
+   ```
+
+2. **Créer le fichier ou répertoire à partager** :
+   ```bash
+   touch /srv/partage/fichier_partage.txt
+   mkdir /srv/partage
+   ```
+
+3. **Changer le propriétaire et le groupe du fichier/répertoire** :
+   ```bash
+   sudo chown root:root /srv/partage/fichier_partage.txt
+   sudo chown root:root /srv/partage
+   ```
+
+4. **Définir les permissions de base** :
+   ```bash
+   chmod 770 /srv/partage/fichier_partage.txt
+   chmod 770 /srv/partage
+   ```
+
+5. **Ajouter des permissions ACL pour des groupes spécifiques** :
+   ```bash
+   setfacl -m g:devs:rwx /srv/partage/fichier_partage.txt
+   setfacl -m g:managers:rwx /srv/partage/fichier_partage.txt
+   ```
+
+6. **Définir des permissions par défaut pour le répertoire** (pour les nouveaux fichiers créés dans ce répertoire) :
+   ```bash
+   setfacl -d -m g:devs:rwx /srv/partage
+   setfacl -d -m g:managers:rwx /srv/partage
+   ```
+
+----
+
 ### Grep :
 
 **Qu'est-ce que Grep ?**
