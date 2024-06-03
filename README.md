@@ -308,7 +308,152 @@ Les utilisateurs peuvent appartenir à plusieurs groupes secondaires, ce qui per
    setfacl -d -m g:managers:rwx /srv/partage
    ```
 
+
+### Exercice Pratique : Gestion Avancée des Utilisateurs et Permissions avec ACL en Unix/Linux
+
+#### Objectif
+
+Dans cet exercice, vous allez créer et configurer un environnement de partage de fichiers où plusieurs utilisateurs appartenant à différents groupes peuvent accéder et modifier un fichier commun. Vous allez utiliser les ACL pour définir des permissions précises.
+
+#### Scénario
+
+1. Vous avez trois utilisateurs : Alice, Bob et Charlie.
+2. Vous avez deux groupes : `devs` et `managers`.
+3. Alice et Bob font partie du groupe `devs`.
+4. Charlie fait partie du groupe `managers`.
+5. Vous devez créer un répertoire de projet où tous ces utilisateurs peuvent collaborer, avec des permissions spécifiques définies par ACL.
+
+#### Étapes
+
+1. **Création des utilisateurs et des groupes**
+2. **Ajout des utilisateurs aux groupes**
+3. **Création d'un répertoire de projet**
+4. **Configuration des permissions de base et des ACL**
+5. **Vérification des permissions**
+
+#### Étape 1 : Création des Utilisateurs et des Groupes
+
+Créez les utilisateurs Alice, Bob et Charlie, et les groupes `devs` et `managers`.
+
+```bash
+# Créer les groupes
+sudo addgroup devs
+sudo addgroup managers
+
+# Créer les utilisateurs
+sudo adduser alice
+sudo adduser bob
+sudo adduser charlie
+```
+
+#### Étape 2 : Ajout des Utilisateurs aux Groupes
+
+Ajoutez Alice et Bob au groupe `devs`, et Charlie au groupe `managers`.
+
+```bash
+# Ajouter Alice et Bob au groupe devs
+sudo usermod -aG devs alice
+sudo usermod -aG devs bob
+
+# Ajouter Charlie au groupe managers
+sudo usermod -aG managers charlie
+```
+
+#### Étape 3 : Création d'un Répertoire de Projet
+
+Créez un répertoire de projet à partager entre les utilisateurs.
+
+```bash
+# Créer le répertoire
+sudo mkdir /srv/projet_partage
+
+# Changer le propriétaire et le groupe du répertoire
+sudo chown root:root /srv/projet_partage
+```
+
+#### Étape 4 : Configuration des Permissions de Base et des ACL
+
+Définissez les permissions de base et configurez les ACL pour le répertoire de projet.
+
+```bash
+# Définir les permissions de base
+sudo chmod 770 /srv/projet_partage
+
+# Ajouter des permissions ACL pour les utilisateurs
+sudo setfacl -m u:alice:rwx /srv/projet_partage
+sudo setfacl -m u:bob:rwx /srv/projet_partage
+sudo setfacl -m u:charlie:r-x /srv/projet_partage
+
+# Ajouter des permissions ACL pour les groupes
+sudo setfacl -m g:devs:rwx /srv/projet_partage
+sudo setfacl -m g:managers:r-x /srv/projet_partage
+
+# Définir des permissions par défaut pour le répertoire
+sudo setfacl -d -m u:alice:rwx /srv/projet_partage
+sudo setfacl -d -m u:bob:rwx /srv/projet_partage
+sudo setfacl -d -m u:charlie:r-x /srv/projet_partage
+sudo setfacl -d -m g:devs:rwx /srv/projet_partage
+sudo setfacl -d -m g:managers:r-x /srv/projet_partage
+```
+
+#### Étape 5 : Vérification des Permissions
+
+Vérifiez les permissions et les ACL pour vous assurer que tout est configuré correctement.
+
+```bash
+# Vérifier les permissions et les ACL
+ls -ld /srv/projet_partage
+getfacl /srv/projet_partage
+```
+
+### Résumé des Commandes
+
+1. Création des groupes :
+   ```bash
+   sudo addgroup devs
+   sudo addgroup managers
+   ```
+
+2. Création des utilisateurs :
+   ```bash
+   sudo adduser alice
+   sudo adduser bob
+   sudo adduser charlie
+   ```
+
+3. Ajout des utilisateurs aux groupes :
+   ```bash
+   sudo usermod -aG devs alice
+   sudo usermod -aG devs bob
+   sudo usermod -aG managers charlie
+   ```
+
+4. Création et configuration du répertoire de projet :
+   ```bash
+   sudo mkdir /srv/projet_partage
+   sudo chown root:root /srv/projet_partage
+   sudo chmod 770 /srv/projet_partage
+   sudo setfacl -m u:alice:rwx /srv/projet_partage
+   sudo setfacl -m u:bob:rwx /srv/projet_partage
+   sudo setfacl -m u:charlie:r-x /srv/projet_partage
+   sudo setfacl -m g:devs:rwx /srv/projet_partage
+   sudo setfacl -m g:managers:r-x /srv/projet_partage
+   sudo setfacl -d -m u:alice:rwx /srv/projet_partage
+   sudo setfacl -d -m u:bob:rwx /srv/projet_partage
+   sudo setfacl -d -m u:charlie:r-x /srv/projet_partage
+   sudo setfacl -d -m g:devs:rwx /srv/projet_partage
+   sudo setfacl -d -m g:managers:r-x /srv/projet_partage
+   ```
+
+5. Vérification des permissions :
+   ```bash
+   ls -ld /srv/projet_partage
+   getfacl /srv/projet_partage
+   ```
+
+
 ----
+
 
 ### Grep :
 
@@ -512,7 +657,4 @@ Vous pouvez améliorer ce script en ajoutant une vérification pour s'assurer qu
 2. Quelles autres fonctionnalités pourraient être ajoutées à ce script pour l'améliorer ou l'adapter à des cas d'utilisation spécifiques ?
    - Réponse : Le script pourrait être étendu pour inclure la gestion des mots de passe, la configuration de répertoires personnels, la définition de shells par défaut, etc.
 
-**Remarques :**
 
-- Veillez à exécuter ce script avec des privilèges suffisants (par exemple, en tant qu'administrateur).
-- Ce TP peut être réalisé sur une machine virtuelle ou un environnement de développement Linux.
